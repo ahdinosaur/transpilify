@@ -25,11 +25,11 @@ at the moment the supported browserify options are:
 ## example
 
 ```shell
-transpilify index.js --transform babelify
+transpilify index.js --transform $(pwd)/node_modules/babelify
 ```
 
 ```shell
-transpilify index.js --transform babelify > index.out.js
+transpilify index.js --transform $(pwd)/node_modules/babelify > index.out.js
 ```
 
 ## ecosystem
