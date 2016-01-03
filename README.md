@@ -1,5 +1,7 @@
 # transpilify
 
+[*experimental*](https://github.com/tristanls/stability-index#stability-1---experimental)
+
 simple transpiler using browserify transforms
 
 ## install
