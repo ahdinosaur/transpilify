@@ -32,8 +32,8 @@ transpilify index.js --transform $(pwd)/node_modules/babelify
 transpilify index.js --transform $(pwd)/node_modules/babelify > index.out.js
 ```
 
-## ecosystem
+## (?) TODO
 
-each `transpilify` transform should output source maps.
+`transpilify` module should also output source maps.
 
-TODO bundlify module should tree shake and combine source maps.
+`bundlify` module should tree shake and combine source maps.
