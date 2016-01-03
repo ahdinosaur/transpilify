@@ -7,7 +7,7 @@
     "test": "tape test/*.js"
   },
   "bin": {
-    "transpilify": "./"
+    "transpilify": "./cli.js"
   },
   "repository": {
     "type": "git",
