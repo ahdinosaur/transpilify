@@ -36,6 +36,7 @@
     "object-assign": "^4.0.1",
     "resolve": "^1.1.6",
     "subarg": "^1.0.0",
+    "term-color": "^1.0.1",
     "through2": "^2.0.0",
     "vinyl-fs": "^2.2.1"
   },
