@@ -2,7 +2,9 @@
 
 [*experimental*](https://github.com/tristanls/stability-index#stability-1---experimental)
 
-simple transpiler using browserify transforms
+Transpiles source file(s) using the specified browserify transforms, without actually bundling.
+
+This is useful if you have a module that would typically use some browserify transforms (like [glslify](https://www.npmjs.com/package/glslify) or [browserify-css](https://www.npmjs.com/package/browserify-css)), but you would like to publish a bundler-agnostic distribution to npm.
 
 ## install
 
@@ -15,14 +17,19 @@ npm install -g transpilify
 ## usage
 
 ```shell
-transpilify [filename] [browserify options]
+transpilify globs [options]
 ```
 
-at the moment the supported browserify options are:
+Where `globs` is a single file or glob, or a series of file or globs, such as `'src/**/*.js'`. If the globs resolve to multiple files, you will need to specify an `--output` directory.
 
-- `--transform`
+Options:
 
-## example
+- `--transform`, `-t` behaves like browserify transform option
+- `--output`, `-o` the output folder
+
+If no output is specified and only one file is given, the result will be printed to `process.stdout`.
+
+## examples
 
 ```shell
 transpilify index.js --transform $(pwd)/node_modules/babelify

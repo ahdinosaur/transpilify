@@ -1,17 +1,15 @@
 var fs = require('fs')
-var defined = require('defined')
 var pump = require('pump')
 var assign = require('object-assign')
 var resolve = require('resolve')
 
 module.exports = createTranspiler
 
-function createTranspiler (options) {
-  options = defined(options, {})
-  var transformers = getTransformers(options)
+function createTranspiler (opts) {
+  opts = opts || {}
+  var transformers = getTransformers(opts)
 
-  return function transpile (filename, writable, cb) {
-    cb = cb || function () {}
+  return function transpile (filename, writable) {
     var source = fs.createReadStream(filename)
     var transform = transformers.map(function (tr) {
       // clone the options so that userland transforms can't mutate
@@ -23,7 +21,7 @@ function createTranspiler (options) {
       ? fs.createWriteStream(writable)
       : writable
     return pump.apply(null,
-      [ source ].concat(transform).concat([ sink, cb ])
+      [ source ].concat(transform).concat([ sink ])
     )
   }
 }

@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-var fs = require('fs')
 var subarg = require('subarg')
 var assign = require('object-assign')
 var path = require('path')
 
 var createTranspiler = require('./')
-
-var mapLimit = require('map-limit')
 var globby = require('globby')
 var args = subarg(process.argv.slice(2), {
   alias: {
@@ -61,32 +58,36 @@ function result (paths) {
     }
     transpiler(file, sink)
   } else {
-    var outdir = path.resolve(basedir, args.output)
-    fs.stat(outdir, function (err, stat) {
-      if (err) return bail(err)
-      if (!stat.isDirectory()) {
-        return bail('--output must be a directory.')
-      }
-      toDirectory(paths, outdir)
-    })
+    // TODO: whole directories is still WIP
+    // It should also be available through API.
+    // var outdir = path.resolve(basedir, args.output)
+    // fs.stat(outdir, function (err, stat) {
+    //   if (err) return bail(err)
+    //   if (!stat.isDirectory()) {
+    //     return bail('--output must be a directory.')
+    //   }
+        // toDirectory(paths, outdir)
+    // })
   }
 }
 
-function toDirectory (paths, dir) {
-  var outdir = path.resolve(basedir, args.output)
-  mapLimit(paths, 25, function (file, next) {
-    var sink = path.join(outdir, path.basename(file))
-    var stream = transpiler(file, sink)
-    stream.once('error', function (err) {
-      next(err)
-    })
-    stream.once('close', function () {
-      next(null)
-    })
-  }, function (err) {
-    if (err) return bail(err)
-  })
-}
+// TODO: figure out a better way to transpile whole directories...
+// function toDirectory (paths, dir) {
+//   var outdir = path.resolve(basedir, args.output)
+//   mapLimit(paths, 25, function (file, next) {
+//     var main = path.relative(basedir, file)
+//     var sink = path.join(outdir, path.basename(file))
+//     var stream = transpiler(file, sink)
+//     stream.once('error', function (err) {
+//       next(err)
+//     })
+//     stream.once('close', function () {
+//       next(null)
+//     })
+//   }, function (err) {
+//     if (err) return bail(err)
+//   })
+// }
 
 function bail (msg) {
   console.error(typeof msg === 'string' ? ('ERROR: ' + msg) : msg.stack)
