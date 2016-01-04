@@ -4,7 +4,9 @@
   "description": "simple transpiler using browserify transforms",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "tape test/*.js",
+    "example": "mkdir -p dist && npm run transpile",
+    "transpile": "./cli.js test/fixtures/actual.js -o dist/ -t [ babelify --presets es2015 ] -t brfs -t glslify"
   },
   "bin": {
     "transpilify": "./cli.js"
@@ -29,11 +31,23 @@
   "homepage": "https://github.com/ahdinosaur/transpilify#readme",
   "dependencies": {
     "defined": "^1.0.0",
+    "globby": "^4.0.0",
+    "map-limit": "0.0.1",
+    "map-stream": "0.0.6",
     "minimist": "^1.2.0",
+    "object-assign": "^4.0.1",
+    "pinkie-promise": "^2.0.0",
     "pump": "^1.0.1",
-    "pumpify": "^1.3.3"
+    "pumpify": "^1.3.3",
+    "resolve": "^1.1.6",
+    "subarg": "^1.0.0",
+    "vinyl-fs": "^2.2.1"
   },
   "devDependencies": {
-    "babelify": "^7.2.0"
+    "babel-preset-es2015": "6.3.13",
+    "babelify": "7.2.0",
+    "brfs": "1.4.2",
+    "glsl-random": "0.0.5",
+    "glslify": "5.0.0"
   }
 }
