@@ -71,7 +71,6 @@ function result (paths) {
   }
 }
 
-// TODO: figure out a better way to transpile whole directories...
 // function toDirectory (paths, dir) {
 //   var outdir = path.resolve(basedir, args.output)
 //   mapLimit(paths, 25, function (file, next) {

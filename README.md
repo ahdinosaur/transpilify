@@ -2,7 +2,7 @@
 
 [*experimental*](https://github.com/tristanls/stability-index#stability-1---experimental)
 
-Transpiles source file(s) using the specified browserify transforms, without actually bundling.
+Applies browserify transforms to your source code, without actually bundling it.
 
 This is useful if you have a module that would typically use some browserify transforms (like [glslify](https://www.npmjs.com/package/glslify) or [browserify-css](https://www.npmjs.com/package/browserify-css)), but you would like to publish a bundler-agnostic distribution to npm.
 
@@ -14,33 +14,55 @@ with [npm](https://www.npmjs.com), do
 npm install -g transpilify
 ```
 
-## usage
+## CLI usage
 
 ```shell
-transpilify globs [options]
+transpilify path/to/index.js [options]
 ```
 
-Where `globs` is a single file or glob, or a series of file or globs, such as `'src/**/*.js'`. If the globs resolve to multiple files, you will need to specify an `--output` directory.
+Transpiles the file at `path/to/index.js` using the `options`, and outputs to `process.stdout`.
 
 Options:
 
-- `--transform`, `-t` behaves like browserify transform option
-- `--output`, `-o` the output folder
-
-If no output is specified and only one file is given, the result will be printed to `process.stdout`.
+  - `--transform`, `-t` are written like browserify CLI transforms
 
 ## examples
 
-```shell
-transpilify index.js --transform $(pwd)/node_modules/babelify
+For example, we have a Node/Browser `index.js` file:
+
+```js
+var fs = require('fs')
+var str = fs.readFileSync(__dirname + '/hello.txt', 'utf8')
+console.log(str)
 ```
 
-```shell
-transpilify index.js --transform $(pwd)/node_modules/babelify > index.out.js
+And our static file:
+
+```txt
+Hello, world!
 ```
 
-## (?) TODO
+After installing `brfs` locally as a devDependency, we can transpile:
 
-`transpilify` module should also output source maps.
+```shell
+transpilify index.js --transform brfs > dist/index.js
+```
 
-`bundlify` module should tree shake and combine source maps.
+The resulting `dist/index.js` file will have the contents statically inlined, without any additional overhead of a traditional bundler.
+
+```js
+console.log("Hello, world!")
+```
+
+Another example, using babelify and presets:
+
+```shell
+transpilify index.js -t [ babelify --preset [ es2015 react ] ] > bundle.js
+```
+
+## Roadmap / TODO
+
+- Handle entire source folders in CLI/API, like `babel` does.
+- Consider using async version of `resolve`...?
+- Investigate better source map support
+- Document API usage
