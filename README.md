@@ -8,7 +8,7 @@ This is useful if you have a module that would typically use some browserify tra
 
 With [npm](https://www.npmjs.com):
 
-```shell
+```sh
 npm install -g transpilify
 ```
 
@@ -45,27 +45,40 @@ Creates a new transform stream for the given `filename`, reading it from disk.
 For example:
 
 ```js
+var createTranspiler = require('transpilify')
 var transpiler = createTranspiler({
   transform: 'brfs'
 })
 
-transpiler('foo.js')
+transpiler('src/index.js')
   .pipe(process.stdout)
 ```
 
 ## CLI Usage
 
-```shell
-transpilify path/to/index.js [options]
-```
+Accepts a single file (to stdout or `--out-file`) or a single directory (to `--out-dir`).
 
-Transpiles the file at `path/to/index.js` using the `options`, and outputs to `process.stdout`.
+```sh
+# to stdout
+transpilify src/index.js [opts]
+
+# to file
+transpilify src/index.js --out-file build.js [opts]
+
+# transpile whole directory
+transpilify src/ --out-dir dist/ [opts]
+```
 
 Options:
 
-  - `--transform`, `-t` are written like browserify CLI transforms
+  - `--transform`, `-t` are written like browserify CLI transforms; supports subarg
+  - `--out-file`, `-o` write results to a file
+  - `--out-dir`, `-d` transpile directory & contents to destination
+  - `--quiet` do not print any debug logs to stderr
 
-## examples
+> *Note:* Currently, when you use `--out-dir`, only files ending with `.js` and `.jsx` will be sent through the transform streams. This will be configurable in a later version.
+
+## Browserify Examples
 
 For example, we have a Node/Browser `index.js` file:
 
@@ -83,7 +96,7 @@ Hello, world!
 
 After installing `brfs` locally as a devDependency, we can transpile:
 
-```shell
+```sh
 transpilify index.js --transform brfs > dist/index.js
 ```
 
@@ -95,13 +108,39 @@ console.log("Hello, world!")
 
 Another example, using babelify and presets:
 
-```shell
+```sh
 transpilify index.js -t [ babelify --preset [ es2015 react ] ] > bundle.js
+```
+
+## Custom Transform Example
+
+Say you want a simple transform for your Node/Browser/whatever module, without the complexities of a bundler, babel plugins, or what have you.
+
+Add a transform:
+
+```js
+// uppercase.js
+var through = require('through2')
+module.exports = function (filename) {
+  return through(function (buf, enc, next) {
+    next(null, buf.toString().toUpperCase())
+  })
+}
+```
+
+Now you can reference the `uppercase.js` file during transpilation:
+
+```sh
+transpilify hello.txt -t ./uppercase.js
+```
+
+Prints:
+
+```sh
+HELLO, WORLD!
 ```
 
 ## Roadmap / TODO
 
-- Handle entire source folders in CLI/API, like `babel` does.
-- Consider using async version of `resolve`...?
 - Investigate better source map support
-- Document API usage
+- Investigate better way of handling non-JS extensions with `--out-dir`

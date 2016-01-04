@@ -105,7 +105,7 @@ function toDirectory (paths, dir) {
     .pipe(vinylfs.dest(dir))
 
   function write (file, _, next) {
-    if (file.isNull() || !/\.js$/i.test(file.path)) {
+    if (file.isNull() || !/\.jsx?$/i.test(file.path)) {
       this.push(file)
       next()
       return
