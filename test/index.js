@@ -2,7 +2,7 @@ var transpilify = require('../')
 var test = require('tape')
 var path = require('path')
 var fs = require('fs')
-var concat = require('concat-stream')
+var bl = require('bl')
 var babelify = require('babelify').configure({
   presets: 'es2015'
 })
@@ -22,7 +22,8 @@ test('simple transpiler using browserify transforms', function (t) {
   var expected = fs.readFileSync(expectedFile, 'utf8')
 
   var fixture = path.resolve(__dirname, 'fixtures', 'actual.js')
-  transpile(fixture, concat(function (body) {
+  transpile(fixture).pipe(bl(function (err, body) {
+    if (err) return t.fail(err)
     t.equal(body.toString(), expected, 'matches source output')
   }))
 })

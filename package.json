@@ -2,10 +2,11 @@
   "name": "transpilify",
   "version": "1.0.3",
   "description": "simple transpiler using browserify transforms",
-  "main": "index.js",
+  "main": "./lib/transform.js",
   "scripts": {
     "test": "standard && node test/index.js | faucet",
-    "example": "./cli.js test/fixtures/actual.js -t [ babelify --presets es2015 ] -t brfs -t glslify"
+    "example-stdout": "./cli.js test/fixtures/actual.js -t [ babelify --presets es2015 ] -t brfs -t glslify",
+    "example-file": "./cli.js test/fixtures/actual.js -o dist/bundle.js -t brfs"
   },
   "bin": {
     "transpilify": "./cli.js"
@@ -29,12 +30,14 @@
   },
   "homepage": "https://github.com/ahdinosaur/transpilify#readme",
   "dependencies": {
-    "globby": "^4.0.0",
-    "map-limit": "0.0.1",
+    "bl": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "multipipe": "^0.3.0",
     "object-assign": "^4.0.1",
-    "pump": "^1.0.1",
     "resolve": "^1.1.6",
-    "subarg": "^1.0.0"
+    "subarg": "^1.0.0",
+    "through2": "^2.0.0",
+    "vinyl-fs": "^2.2.1"
   },
   "standard": {
     "ignore": [
@@ -45,7 +48,6 @@
     "babel-preset-es2015": "6.3.13",
     "babelify": "7.2.0",
     "brfs": "1.4.2",
-    "concat-stream": "^1.5.1",
     "faucet": "0.0.1",
     "glsl-random": "0.0.5",
     "glslify": "5.0.0",
