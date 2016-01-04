@@ -1,8 +1,17 @@
 # transpilify
 
+[![stability][stability-image]][stability-url]
+[![NPM version][npm-image]][npm-url]
+[![Downloads][downloads-image]][downloads-url]
+[![js-standard-style][standard-image]][standard-url]
+
 Applies browserify transforms to your source code, without actually bundling it.
 
 This is useful if you have a module that would typically use some browserify transforms (like [glslify](https://www.npmjs.com/package/glslify) or [browserify-css](https://www.npmjs.com/package/browserify-css)), but you would like to publish a bundler-agnostic distribution to npm.
+
+#### work in progress
+
+This module is still a work in progress. The latest changes in master have not yet been pushed to npm.
 
 ## Install
 
@@ -72,11 +81,14 @@ transpilify src/ --out-dir dist/ [opts]
 Options:
 
   - `--transform`, `-t` are written like browserify CLI transforms; supports subarg
+    - e.g. `--transform brfs`
   - `--out-file`, `-o` write results to a file
   - `--out-dir`, `-d` transpile directory & contents to destination
+  - `--ignore`, `-i` a pattern or array of glob patterns to ignore (will not emit files matching these globs)
+  - `--extensions`, `-x`
+    - a list of comma-separated extensions to accept for transformation
+    - defaults to `".js,.jsx,.es6,.es"`
   - `--quiet` do not print any debug logs to stderr
-
-> *Note:* Currently, when you use `--out-dir`, only files ending with `.js` and `.jsx` will be sent through the transform streams. This will be configurable in a later version.
 
 ## Browserify Examples
 
@@ -109,7 +121,7 @@ console.log("Hello, world!")
 Another example, using babelify and presets:
 
 ```sh
-transpilify index.js -t [ babelify --preset [ es2015 react ] ] > bundle.js
+transpilify index.js -t [ babelify --presets [ es2015 react ] ] > bundle.js
 ```
 
 ## Custom Transform Example
@@ -131,16 +143,20 @@ module.exports = function (filename) {
 Now you can reference the `uppercase.js` file during transpilation:
 
 ```sh
-transpilify hello.txt -t ./uppercase.js
+transpilify index.js -t ./uppercase.js
 ```
 
-Prints:
-
-```sh
-HELLO, WORLD!
-```
+This will uppercase your entire source file.
 
 ## Roadmap / TODO
 
 - Investigate better source map support
-- Investigate better way of handling non-JS extensions with `--out-dir`
+
+[stability-image]: https://img.shields.io/badge/stability-experimental-orange.svg?style=flat-square
+[stability-url]: https://nodejs.org/api/documentation.html#documentation_stability_index
+[npm-image]: https://img.shields.io/npm/v/transpilify.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/transpilify
+[downloads-image]: http://img.shields.io/npm/dm/transpilify.svg?style=flat-square
+[downloads-url]: https://npmjs.org/package/transpilify
+[standard-image]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square
+[standard-url]: https://github.com/feross/standard

@@ -3,6 +3,7 @@ var subarg = require('subarg')
 var assign = require('object-assign')
 var path = require('path')
 
+var micromatch = require('micromatch')
 var createTranspiler = require('./')
 var vinylfs = require('vinyl-fs')
 var bl = require('bl')
@@ -16,11 +17,18 @@ var args = subarg(process.argv.slice(2), {
   alias: {
     transform: 't',
     outDir: [ 'out-dir', 'd' ],
-    outFile: [ 'out-file', 'o' ]
+    outFile: [ 'out-file', 'o' ],
+    ignore: 'i',
+    extensions: 'x'
   }
 })
 
 var basedir = args.basedir || process.cwd()
+var defaultExtensions = ['.js', '.jsx', '.es6', '.es']
+var extensions = typeof args.extensions === 'string'
+  ? args.extensions.split(',').filter(Boolean)
+  : defaultExtensions
+var ignores = [].concat(args.ignore).filter(Boolean)
 
 // Handle subarg in CLI transforms
 var transforms = []
@@ -56,11 +64,17 @@ function run (paths) {
   }
 
   if ((args.outFile && typeof args.outFile !== 'string') ||
-      (args.outDir && typeof args.outDir !== 'string')) {
+    (args.outDir && typeof args.outDir !== 'string')) {
     return bail('You must specify a path for --out-file or --out-dir options')
   }
 
-  if (args.outFile || (!args.outFile && !args.outDir)) {
+  // If we are ignoring this file, do not emit anything
+  var outFile = args.outFile
+  if (outFile && shouldIgnore(outFile)) {
+    return
+  }
+
+  if (outFile || (!outFile && !args.outDir)) {
     var file = paths[0]
 
     fs.stat(file, function (err, stat) {
@@ -68,20 +82,25 @@ function run (paths) {
       if (err) return bail(err)
       if (!stat.isFile()) return bail('Input is not a file: ' + file)
 
-      var output = transpiler(file)
-      if (args.outFile) {
+      // for parity with --out-dir, ensure we only compile proper extensions
+      var inStream = canCompile(file)
+        ? transpiler(file)
+        : fs.createReadStream(file)
+
+      if (outFile) {
         // Although this is a bit non-standard for unix tools,
         // we do it because vinyl-fs is using mkdirp under the hood.
-        var newDir = path.resolve(basedir, path.dirname(args.outFile))
+        var newDir = path.resolve(basedir, path.dirname(outFile))
         mkdirp.sync(newDir)
 
-        var sink = path.resolve(basedir, args.outFile)
+        // now emit files
+        var sink = path.resolve(basedir, outFile)
         var inPath = path.relative(basedir, file)
         var outPath = path.relative(basedir, args.outFile)
         logFile(inPath, outPath)
-        output.pipe(fs.createWriteStream(sink))
+        inStream.pipe(fs.createWriteStream(sink))
       } else {
-        output.pipe(process.stdout)
+        inStream.pipe(process.stdout)
       }
     })
   } else {
@@ -104,11 +123,21 @@ function toDirectory (paths, dir) {
     .pipe(through2.obj(write, flush))
     .pipe(vinylfs.dest(dir))
 
-  function write (file, _, next) {
-    if (file.isNull() || !/\.jsx?$/i.test(file.path)) {
+  function write (file, enc, next) {
+    var filePath = file.path
+    var oldPath = path.relative(basedir, filePath)
+    var newPath = [ dir, oldPath ].join(path.sep)
+
+    // if we should drop this entry
+    if (shouldIgnore(filePath)) {
+      return next(null)
+    }
+
+    // if we can't compile it...
+    if (file.isNull() || canCompile(filePath)) {
+      logFile(oldPath, newPath)
       this.push(file)
-      next()
-      return
+      return next(null)
     }
 
     var stream = this
@@ -118,16 +147,14 @@ function toDirectory (paths, dir) {
       ))
     }
 
-    transpiler(file.path)
+    transpiler(filePath)
       .pipe(bl(function (err, buffer) {
         if (err) return stream.emit('error', err)
 
-        var oldPath = path.relative(basedir, file.path)
-        var newPath = [ dir, oldPath ].join(path.sep)
         logFile(oldPath, newPath)
         file.contents = buffer
         stream.push(file)
-        next()
+        next(null)
       }))
   }
 
@@ -145,4 +172,15 @@ function bail (msg) {
 function logFile (src, dst) {
   if (args.quiet) return
   console.error(src, color.dim('->'), dst)
+}
+
+function canCompile (file) {
+  var ext = path.extname(file).toLowerCase()
+  return extensions.indexOf(ext) >= 0
+}
+
+function shouldIgnore (file) {
+  return ignores.some(function (ignore) {
+    return micromatch.isMatch(file, ignore)
+  })
 }

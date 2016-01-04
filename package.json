@@ -31,6 +31,7 @@
   "homepage": "https://github.com/ahdinosaur/transpilify#readme",
   "dependencies": {
     "bl": "^1.0.0",
+    "micromatch": "^2.3.7",
     "mkdirp": "^0.5.1",
     "multipipe": "^0.3.0",
     "object-assign": "^4.0.1",
