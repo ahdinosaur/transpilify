@@ -1,20 +1,59 @@
 # transpilify
 
-[*experimental*](https://github.com/tristanls/stability-index#stability-1---experimental)
-
 Applies browserify transforms to your source code, without actually bundling it.
 
 This is useful if you have a module that would typically use some browserify transforms (like [glslify](https://www.npmjs.com/package/glslify) or [browserify-css](https://www.npmjs.com/package/browserify-css)), but you would like to publish a bundler-agnostic distribution to npm.
 
-## install
+## Install
 
-with [npm](https://www.npmjs.com), do
+With [npm](https://www.npmjs.com):
 
 ```shell
 npm install -g transpilify
 ```
 
-## CLI usage
+## API Usage
+
+#### `transpile = createTranspiler([opt])`
+
+Returns a function, `transpile`, which creates a transform stream. The options:
+
+- `transform` a transform or array of transforms, same usage as browserify
+- `basedir` the base directory used to resolve transform names from
+
+The `transform` elements can be a string (local dependency) or function (conventional transform stream). You can use a tuple to specify the transform and its options. For example:
+
+```js
+var transpiler = createTranspiler({
+  transform: [
+    // local dependency
+    'brfs',
+    // transform + options
+    [ 'glslify', { transform: [ 'glslify-hex' ] },
+    // transform function
+    require('babelify').configure({
+      presets: [ 'es2015' ]
+    })
+  ]
+})
+```
+
+#### `stream = transpiler(filename)`
+
+Creates a new transform stream for the given `filename`, reading it from disk.
+
+For example:
+
+```js
+var transpiler = createTranspiler({
+  transform: 'brfs'
+})
+
+transpiler('foo.js')
+  .pipe(process.stdout)
+```
+
+## CLI Usage
 
 ```shell
 transpilify path/to/index.js [options]
