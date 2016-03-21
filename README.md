@@ -11,7 +11,7 @@ This is useful if you have a module that would typically use some browserify tra
 
 #### work in progress
 
-This module is still a work in progress. The latest changes in master have not yet been pushed to npm.
+This module is still a work in progress and may be subject to more changes.
 
 ## Install
 
