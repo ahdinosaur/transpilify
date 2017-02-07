@@ -134,7 +134,7 @@ function toDirectory (paths, dir) {
     }
 
     // if we can't compile it...
-    if (file.isNull() || canCompile(filePath)) {
+    if (file.isNull() || !canCompile(filePath)) {
       logFile(oldPath, newPath)
       this.push(file)
       return next(null)
