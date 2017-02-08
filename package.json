@@ -1,6 +1,6 @@
 {
   "name": "transpilify",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "simple transpiler using browserify transforms",
   "main": "./lib/transform.js",
   "scripts": {
