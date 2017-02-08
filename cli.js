@@ -120,7 +120,7 @@ function toDirectory (paths, dir) {
   var rootDir = paths[0]
   var globs = [ path.join(rootDir, '/**/*') ]
   vinylfs.src(globs)
-    .pipe(through2.obj(write, flush))
+    .pipe(through2.obj(write))
     .pipe(vinylfs.dest(dir))
 
   function write (file, enc, next) {
@@ -156,11 +156,6 @@ function toDirectory (paths, dir) {
         stream.push(file)
         next(null)
       }))
-  }
-
-  function flush () {
-    this.push(null)
-    this.emit('end')
   }
 }
 
